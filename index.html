@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="hi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#101827">
+<meta name="description" content="Gold Signal Studio - XAU-USDT multi-timeframe analysis">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<title>Gold Signal Studio</title>
+<style>
+:root{--bg:#0b1220;--panel:#121d2e;--panel2:#19263a;--line:#26364d;--txt:#edf3fb;--muted:#9aabc1;--gold:#e8bd62;--green:#32c48d;--red:#ff6978;--blue:#77b7ff}
+*{box-sizing:border-box}body{margin:0;background:linear-gradient(180deg,#101a2b,#080e18);color:var(--txt);font:15px system-ui,-apple-system,Segoe UI,Roboto,sans-serif;padding:env(safe-area-inset-top) 14px env(safe-area-inset-bottom)}
+header{max-width:900px;margin:auto;padding:20px 2px 12px;display:flex;justify-content:space-between;align-items:center;gap:12px}
+.brand{display:flex;gap:10px;align-items:center}.logo{width:42px;height:42px;border-radius:14px;background:linear-gradient(145deg,#f6d88d,#a56d22);display:grid;place-items:center;color:#151515;font-size:23px;font-weight:900}
+h1{font-size:18px;margin:0}header small{color:var(--muted)}button,select,input{font:inherit}button{border:0;border-radius:12px;padding:12px 14px;background:var(--gold);color:#16191f;font-weight:750}
+main{max-width:900px;margin:auto;display:grid;gap:12px;padding-bottom:30px}.card{background:rgba(18,29,46,.96);border:1px solid var(--line);border-radius:18px;padding:15px;box-shadow:0 8px 25px #0002}
+.row{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap}.muted{color:var(--muted)}.price{font-size:29px;font-weight:800;letter-spacing:-.8px}.gold{color:var(--gold)}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.metric{background:var(--panel2);padding:12px;border-radius:13px}.metric b{display:block;font-size:18px;margin-top:4px}.label{font-size:12px;color:var(--muted)}
+select,input{width:100%;background:#0c1625;border:1px solid var(--line);border-radius:11px;color:var(--txt);padding:11px;outline:none}.controls{display:grid;grid-template-columns:1fr 1fr;gap:10px}.signal{font-size:24px;font-weight:850}.buy{color:var(--green)}.sell{color:var(--red)}.wait{color:var(--gold)}
+table{width:100%;border-collapse:collapse;font-size:13px}td,th{padding:10px 6px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}td:first-child,th:first-child{text-align:left}th{color:var(--muted);font-weight:600}
+.pill{padding:5px 9px;border-radius:20px;background:#25354a;font-size:12px}.note{font-size:12px;line-height:1.5;color:var(--muted)}.warn{border-left:3px solid var(--gold);padding:10px 12px;background:#2a2418;border-radius:8px;color:#f4ddb0;font-size:12px;line-height:1.5}
+.actions{display:flex;gap:8px}.actions button{flex:1}.secondary{background:#25354a;color:var(--txt)}.hidden{display:none}.status{font-size:12px;color:var(--muted)}.positive{color:var(--green)}.negative{color:var(--red)}
+@media(min-width:650px){.grid{grid-template-columns:repeat(4,1fr)}.controls{grid-template-columns:repeat(4,1fr)}main{padding-top:5px}}
+</style>
+</head>
+<body>
+<header><div class="brand"><div class="logo">G</div><div><h1>Gold Signal Studio</h1><small>XAU-USDT · Multi-timeframe</small></div></div><button id="installBtn" class="hidden">Install App</button></header>
+<main>
+<section class="card">
+ <div class="row"><div><div class="label">LIVE MARKET PRICE</div><div class="price" id="price">—</div><div class="status" id="updated">Market data connect ho raha hai…</div></div><span class="pill" id="connection">CONNECTING</span></div>
+ <div class="controls" style="margin-top:15px">
+  <div><div class="label">Market pair</div><select id="pair"><option value="B-XAU_USDT">XAU-USDT (default)</option></select></div>
+  <div><div class="label">Refresh</div><select id="refresh"><option value="15">15 seconds</option><option value="30">30 seconds</option><option value="60">60 seconds</option></select></div>
+  <div><div class="label">Max risk (₹)</div><input id="risk" type="number" min="50" step="50" value="300"></div>
+  <div><div class="label">USD / INR (estimate)</div><input id="fx" type="number" min="50" step=".5" value="90"></div>
+ </div>
+ <div class="actions" style="margin-top:12px"><button id="refreshBtn">↻ Refresh analysis</button><button id="notifyBtn" class="secondary">Enable alerts</button></div>
+</section>
+<section class="card">
+ <div class="row"><div><div class="label">CURRENT TRADE BIAS</div><div class="signal wait" id="finalSignal">WAIT / NO TRADE</div></div><span class="pill" id="consensus">Waiting for data</span></div>
+ <p class="note" id="signalText">Signal tabhi dikhaya jayega jab 5m setup aur higher timeframes agree karenge.</p>
+ <div class="grid">
+  <div class="metric"><span class="label">Entry</span><b id="entry">—</b></div><div class="metric"><span class="label">Stop loss</span><b id="sl">—</b></div>
+  <div class="metric"><span class="label">Target 1 (1R)</span><b id="tp1">—</b></div><div class="metric"><span class="label">Target 2 (2R)</span><b id="tp2">—</b></div>
+ </div>
+ <p class="note" id="qty">Position size: —</p>
+</section>
+<section class="card">
+ <div class="row"><b>Multi-timeframe analysis</b><span class="pill">EMA · RSI · MACD · ATR</span></div>
+ <div style="overflow-x:auto;margin-top:8px"><table><thead><tr><th>Timeframe</th><th>Signal</th><th>Score</th><th>RSI</th><th>Close</th></tr></thead><tbody id="tfbody"><tr><td colspan="5" class="muted">Candles load ho rahe hain…</td></tr></tbody></table></div>
+</section>
+<section class="card">
+ <b>Signal explanation</b><div id="reasons" class="note" style="margin-top:9px">Analysis ke baad yahan reasons aayenge.</div>
+</section>
+<section class="card">
+ <b>Risk rules</b>
+ <ul class="note"><li>Per trade risk ko ₹300 se zyada mat rakho.</li><li>2 consecutive losses ya daily 2R loss ke baad trading band.</li><li>WAIT bhi ek valid signal hai. Setup na ho to trade mat lo.</li><li>Revenge trading aur averaging down se bacho.</li></ul>
+ <div class="warn">Ye app signal assistant hai, guaranteed-profit system nahi. Contract multiplier/lot size verify kiye bina quantity ko live order mein use mat karna. Abhi app order place nahi karta.</div>
+</section>
+<footer class="note" style="text-align:center;padding:5px 10px 20px">Gold Signal Studio PWA · Signal-only · No exchange login or API secret required · Data/API availability may vary.</footer>
+</main>
+<script src="app.js"></script>
+</body></html>
